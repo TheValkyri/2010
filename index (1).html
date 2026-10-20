@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Thư Hoa 20/10</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#FBD3E0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Dancing+Script:wght@500;600&family=Playfair+Display:ital,wght@0,500;1,500;1,600&display=swap" rel="stylesheet">
+<style>
+/* Bố cục: một màn hình. Sân khấu 3D phủ toàn khung, chữ nổi phía trên, nút mở thư phía dưới.
+   Bó hoa nằm trên bệ sứ có cỏ, phong thư 3D nổi phía trước. */
+:root{
+  --blush:#FFF4F7;
+  --petal:#FBD3E0;
+  --rose-light:#F5A3BF;
+  --rose:#C72C66;
+  --rose-deep:#8E1A48;
+  --wine:#45142B;
+  --gold:#C79F5B;
+  --gold-soft:#EAD3A4;
+  --leaf:#6B9672;
+  --paper:#FFFAF7;
+  --f-display:"Playfair Display","Times New Roman",serif;
+  --f-body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-hand:"Dancing Script","Segoe Script","Brush Script MT",cursive;
+  color-scheme:light;
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{
+  background-color:var(--blush);
+  background-image:
+    radial-gradient(120% 70% at 50% 108%,#F6B2C9 0%,rgba(246,178,201,0) 62%),
+    radial-gradient(90% 55% at 12% -5%,#FFE6EE 0%,rgba(255,230,238,0) 70%),
+    linear-gradient(180deg,#FFF1F5 0%,#FCD9E5 100%);
+  color:var(--wine);
+  font-family:var(--f-body);
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;
+}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.ic{width:1.25em;height:1.25em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ---------- nền ---------- */
+.bg{position:fixed;inset:0;overflow:hidden;pointer-events:none}
+.halo{position:absolute;left:50%;top:50%;width:min(130vw,900px);aspect-ratio:1;transform:translate(-50%,-48%);
+  background:radial-gradient(closest-side,rgba(255,255,255,.8),rgba(255,214,228,.38) 55%,rgba(255,214,228,0) 74%)}
+.bokeh i{position:absolute;border-radius:50%;width:var(--s);height:var(--s);left:var(--x);top:var(--y);
+  background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.85),rgba(255,206,224,.3) 55%,rgba(255,206,224,0) 72%);
+  animation:drift var(--d) ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(14px,-26px,0) scale(1.08)}}
+.frame{position:fixed;inset:max(10px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));
+  border:1px solid rgba(199,159,91,.55);border-radius:26px;pointer-events:none;color:var(--gold)}
+.frame .co{position:absolute;width:44px;height:44px}
+.frame .co.tl{left:-1px;top:-1px}
+.frame .co.tr{right:-1px;top:-1px;transform:scaleX(-1)}
+.frame .co.bl{left:-1px;bottom:-1px;transform:scaleY(-1)}
+.frame .co.br{right:-1px;bottom:-1px;transform:scale(-1,-1)}
+.frame .co svg{width:100%;height:100%;display:block}
+
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+#fallback{position:fixed;left:0;right:0;top:20%;bottom:22%;display:grid;place-items:center;pointer-events:none}
+#fallback svg{width:min(70vw,340px);height:auto;animation:fbspin 40s linear infinite}
+@keyframes fbspin{to{transform:rotate(360deg)}}
+#fallback .fbpetal{fill:url(#ldGrad);stroke:rgba(255,255,255,.6);stroke-width:.8}
+
+/* ---------- giao diện chính ---------- */
+.ui{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;pointer-events:none;
+  padding-top:calc(env(safe-area-inset-top,0px) + 30px);
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 30px);
+  padding-left:max(24px,env(safe-area-inset-left,0px));
+  padding-right:max(24px,env(safe-area-inset-right,0px));
+  text-align:center}
+.head,.foot{display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;transform:translateY(14px);transition:opacity 1s ease,transform 1s cubic-bezier(.2,.8,.2,1)}
+.foot{transform:translateY(-14px);gap:14px;transition-delay:.5s}
+.ready .head,.ready .foot{opacity:1;transform:none}
+.eyebrow{margin:0;display:flex;align-items:center;gap:12px;font-size:11.5px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--rose-deep)}
+.eyebrow i{display:block;width:26px;height:1px;background:var(--gold)}
+h1{margin:0;font-family:var(--f-display);font-style:italic;font-weight:600;font-size:clamp(2.1rem,9.2vw,3.6rem);line-height:1.08;color:var(--wine);text-wrap:balance}
+.sub{margin:0;font-size:13.5px;line-height:1.5;color:rgba(69,20,43,.72)}
+.sub b{font-weight:600;color:var(--rose)}
+.cta{pointer-events:auto;position:relative;display:inline-flex;align-items:center;gap:10px;min-height:54px;padding:0 30px;border-radius:999px;
+  font-weight:600;font-size:16px;letter-spacing:.01em;color:#fff;
+  background:linear-gradient(135deg,#D9407A 0%,#B3235A 100%);
+  box-shadow:0 0 0 1px rgba(234,211,164,.9) inset,0 14px 30px -10px rgba(179,35,90,.65);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.cta::after{content:"";position:absolute;inset:-6px;border-radius:inherit;border:1.5px solid rgba(199,44,102,.45);animation:ping 2.4s ease-out infinite;pointer-events:none}
+@keyframes ping{0%{transform:scale(.94);opacity:.9}100%{transform:scale(1.18);opacity:0}}
+.cta:hover{transform:translateY(-2px)}
+.cta:active{transform:scale(.97)}
+.hint{margin:0;display:flex;align-items:center;gap:8px;font-size:12.5px;letter-spacing:.02em;color:rgba(69,20,43,.62)}
+.icon-btn{pointer-events:auto;position:fixed;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;color:var(--rose-deep);
+  top:calc(env(safe-area-inset-top,0px) + 26px);right:max(22px,env(safe-area-inset-right,0px));
+  background:rgba(255,250,247,.82);box-shadow:0 0 0 1px rgba(199,159,91,.6) inset,0 8px 20px -10px rgba(142,26,72,.5);
+  opacity:0;transition:opacity 1s .9s,transform .25s}
+.ready .icon-btn{opacity:1}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn .ic{width:24px;height:24px}
+
+/* ---------- loading ---------- */
+#loader{position:fixed;inset:0;z-index:50;display:grid;place-items:center;
+  background-color:#FFEFF4;
+  background-image:radial-gradient(70% 55% at 50% 42%,#FFFFFF 0%,rgba(255,255,255,0) 70%),linear-gradient(180deg,#FFE9F0,#F9C5D6);
+  clip-path:circle(150% at 50% 44%);transition:clip-path 1.25s cubic-bezier(.7,0,.2,1)}
+#loader.done{clip-path:circle(0% at 50% 44%);pointer-events:none}
+.ld-in{display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 24px}
+.ld-svg{width:min(62vw,270px);height:auto;overflow:visible}
+.ld-ring-bg{fill:none;stroke:rgba(199,159,91,.28);stroke-width:1.2}
+.ld-ring{fill:none;stroke:var(--gold);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:590.6;stroke-dashoffset:590.6}
+.ld-petal{fill:url(#ldGrad);stroke:rgba(255,255,255,.65);stroke-width:.9}
+.ld-leaf{fill:url(#ldLeaf);stroke:rgba(255,255,255,.4);stroke-width:.6}
+.ld-num{margin:0;font-family:var(--f-display);font-style:italic;font-weight:600;font-size:2.4rem;line-height:1;color:var(--rose-deep);font-variant-numeric:tabular-nums}
+.ld-num small{font-size:1rem;margin-left:2px;color:var(--gold)}
+.ld-msg{margin:0;font-size:13.5px;letter-spacing:.03em;color:rgba(69,20,43,.7);min-height:1.5em;text-align:center}
+
+/* ---------- lá thư ---------- */
+.letter{position:fixed;inset:0;z-index:30;display:flex;overflow:auto;
+  padding-top:calc(env(safe-area-inset-top,0px) + 40px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 24px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  opacity:0;visibility:hidden;transition:opacity .5s ease,visibility 0s .5s}
+.letter.on{opacity:1;visibility:visible;transition-delay:0s}
+.scrim{position:fixed;inset:0;background:radial-gradient(90% 70% at 50% 45%,rgba(255,244,247,.72),rgba(250,205,222,.78))}
+.paper{position:relative;width:min(100%,440px);margin:auto;border-radius:20px;padding:54px 30px 26px;text-align:center;
+  background:var(--paper);
+  background-image:repeating-linear-gradient(180deg,transparent 0,transparent 33px,rgba(199,44,102,.07) 33px,rgba(199,44,102,.07) 34px);
+  box-shadow:0 0 0 1px rgba(199,159,91,.7) inset,0 0 0 8px var(--paper),0 0 0 9px rgba(199,159,91,.45),0 30px 60px -20px rgba(142,26,72,.55);
+  transform:translateY(44px) rotate(-2.2deg) scale(.9);opacity:0;
+  transition:transform .9s cubic-bezier(.2,.9,.25,1.08),opacity .55s ease}
+.letter.on .paper{transform:none;opacity:1}
+.paper .co{position:absolute;width:38px;height:38px;color:var(--gold);pointer-events:none}
+.paper .co.tl{left:12px;top:12px}
+.paper .co.tr{right:12px;top:12px;transform:scaleX(-1)}
+.paper .co.bl{left:12px;bottom:12px;transform:scaleY(-1)}
+.paper .co.br{right:12px;bottom:12px;transform:scale(-1,-1)}
+.seal{position:absolute;left:50%;top:0;width:58px;height:58px;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;color:#fff;
+  background:radial-gradient(circle at 35% 28%,#E85A8E,#B3235A 70%);box-shadow:0 0 0 2px rgba(234,211,164,.95),0 10px 20px -6px rgba(142,26,72,.6)}
+.seal .ic{width:26px;height:26px;fill:currentColor;stroke:none}
+.lt-to{margin:0 0 14px;font-family:var(--f-display);font-style:italic;font-size:1.15rem;color:var(--rose-deep)}
+.lt-wish{margin:0;font-family:var(--f-hand);font-weight:600;font-size:clamp(1.65rem,6.6vw,2.15rem);line-height:1.38;color:var(--wine);text-wrap:pretty;min-height:7.5em;display:flex;flex-wrap:wrap;justify-content:center;align-content:center;column-gap:.28em}
+.w{display:inline-block;opacity:0;transform:translateY(10px);filter:blur(4px);animation:wIn .7s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--i)*60ms + 450ms)}
+@keyframes wIn{to{opacity:1;transform:none;filter:none}}
+.lt-from{margin:12px 0 0;font-family:var(--f-display);font-style:italic;color:var(--rose-deep)}
+.lt-no{margin:16px 0 0;font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(69,20,43,.5);font-variant-numeric:tabular-nums}
+.lt-actions{margin-top:20px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 22px;border-radius:999px;font-weight:600;font-size:15px;transition:transform .2s}
+.btn:active{transform:scale(.96)}
+.btn-primary{color:#fff;background:linear-gradient(135deg,#D9407A,#B3235A);box-shadow:0 0 0 1px rgba(234,211,164,.9) inset,0 10px 22px -10px rgba(179,35,90,.7)}
+.btn-ghost{color:var(--rose-deep);box-shadow:0 0 0 1.5px rgba(199,44,102,.35) inset}
+
+/* ---------- chặn trình duyệt trong app ---------- */
+.gate{position:fixed;inset:0;z-index:100;display:grid;place-items:center;overflow:auto;
+  padding-top:calc(env(safe-area-inset-top,0px) + 20px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 20px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background-color:var(--blush);background-image:radial-gradient(90% 60% at 50% 0%,#FFFFFF,rgba(255,255,255,0) 70%),linear-gradient(180deg,#FFE9F0,#F9C5D6)}
+.gate-card{width:min(100%,420px);margin:auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;padding:34px 24px 26px;border-radius:24px;background:var(--paper);
+  box-shadow:0 0 0 1px rgba(199,159,91,.7) inset,0 0 0 8px var(--paper),0 0 0 9px rgba(199,159,91,.45),0 30px 60px -24px rgba(142,26,72,.55)}
+.gate-ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#D9407A,#B3235A);box-shadow:0 0 0 2px var(--gold-soft)}
+.gate-ic .ic{width:32px;height:32px}
+.gate h2{margin:0;font-family:var(--f-display);font-style:italic;font-weight:600;font-size:1.65rem;line-height:1.2;text-wrap:balance}
+.gate p{margin:0;font-size:14.5px;line-height:1.6;color:rgba(69,20,43,.78)}
+.gate .cta{margin-top:6px}
+.gate-url{width:100%;min-width:0;height:44px;border-radius:12px;border:1px solid rgba(199,159,91,.6);background:#fff;padding:0 12px;font:inherit;font-size:13px;color:var(--wine)}
+.gate-row{width:100%;display:flex;gap:8px}
+.gate-row .btn{min-height:44px;padding:0 16px;flex:none}
+.gate ol{margin:4px 0 0;padding:0 0 0 20px;text-align:left;font-size:13.5px;line-height:1.6;color:rgba(69,20,43,.78)}
+.gate-note{font-size:12.5px!important;color:var(--rose-deep)!important}
+
+@media (max-height:620px){
+  .head{gap:6px}.sub{display:none}.hint{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .w{animation:none;opacity:1;transform:none;filter:none}
+}
+</style>
+
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="ldGrad" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="82">
+      <stop offset="0" stop-color="#8E1A48"/><stop offset=".5" stop-color="#D8457D"/><stop offset="1" stop-color="#F9BDD0"/>
+    </radialGradient>
+    <linearGradient id="ldLeaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4E8A5E"/><stop offset="1" stop-color="#A9D3A0"/></linearGradient>
+    <symbol id="i-env" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.6"/><path d="m3.6 7.4 8.4 6.2 8.4-6.2"/></symbol>
+    <symbol id="i-swipe" viewBox="0 0 24 24"><path d="M3.5 12h17M7.5 8l-4 4 4 4M16.5 8l4 4-4 4"/></symbol>
+    <symbol id="i-again" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.7-6"/><path d="M20.4 3.8v4.6H15.8"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.4C6 16.2 3.4 12.8 3.4 9.3a4.4 4.4 0 0 1 8.6-1.6 4.4 4.4 0 0 1 8.6 1.6c0 3.5-2.6 6.9-8.6 11.1z"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></symbol>
+    <symbol id="i-bloom" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><g><path id="i-bloom-p" d="M12 9.9C10.4 7.6 10.6 4.9 12 3.4c1.4 1.5 1.6 4.2 0 6.5z"/><use href="#i-bloom-p" transform="rotate(72 12 12)"/><use href="#i-bloom-p" transform="rotate(144 12 12)"/><use href="#i-bloom-p" transform="rotate(216 12 12)"/><use href="#i-bloom-p" transform="rotate(288 12 12)"/></g></symbol>
+    <symbol id="i-corner" viewBox="0 0 48 48"><path d="M2 46V20C2 10.5 10 2 20 2h26" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M11 11c5.4-.6 9.4 1.2 11.6 5.4-5.4.6-9.4-1.2-11.6-5.4zM11 11c-.6 5.4 1.2 9.4 5.4 11.6.6-5.4-1.2-9.4-5.4-11.6z" fill="currentColor" opacity=".75"/><circle cx="2" cy="46" r="1.7" fill="currentColor"/><circle cx="46" cy="2" r="1.7" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<div class="bg" aria-hidden="true">
+  <div class="halo"></div>
+  <div class="bokeh">
+    <i style="--s:150px;--x:-30px;--y:8%;--d:13s"></i>
+    <i style="--s:90px;--x:78%;--y:16%;--d:10s"></i>
+    <i style="--s:120px;--x:70%;--y:68%;--d:15s"></i>
+    <i style="--s:70px;--x:8%;--y:74%;--d:11s"></i>
+    <i style="--s:46px;--x:44%;--y:4%;--d:9s"></i>
+  </div>
+</div>
+
+<div class="frame" aria-hidden="true">
+  <span class="co tl"><svg><use href="#i-corner"/></svg></span>
+  <span class="co tr"><svg><use href="#i-corner"/></svg></span>
+  <span class="co bl"><svg><use href="#i-corner"/></svg></span>
+  <span class="co br"><svg><use href="#i-corner"/></svg></span>
+</div>
+
+<canvas id="gl" aria-label="Bó hoa hồng 3D, kéo để xoay"></canvas>
+<div id="fallback" hidden aria-hidden="true"><svg viewBox="-100 -100 200 200" id="fbRose"></svg></div>
+
+<main class="ui">
+  <header class="head">
+    <p class="eyebrow"><i></i>Ngày Phụ nữ Việt Nam<i></i></p>
+    <h1>Gửi các bạn nữ</h1>
+    <p class="sub"><b>20.10</b> &nbsp;·&nbsp; Một lá thư nhỏ đang chờ bạn</p>
+  </header>
+  <footer class="foot">
+    <button id="openBtn" class="cta" type="button"><svg class="ic" aria-hidden="true"><use href="#i-env"/></svg><span>Mở thư</span></button>
+    <p class="hint"><svg class="ic" aria-hidden="true" style="width:1.1em;height:1.1em"><use href="#i-swipe"/></svg>Kéo để xoay bó hoa</p>
+  </footer>
+</main>
+<button id="burstBtn" class="icon-btn" type="button" aria-label="Rắc cánh hoa"><svg class="ic" aria-hidden="true"><use href="#i-bloom"/></svg></button>
+
+<section id="letter" class="letter" role="dialog" aria-modal="true" aria-labelledby="ltTo" hidden>
+  <div class="scrim"></div>
+  <article class="paper">
+    <span class="co tl"><svg width="38" height="38"><use href="#i-corner"/></svg></span>
+    <span class="co tr"><svg width="38" height="38"><use href="#i-corner"/></svg></span>
+    <span class="co bl"><svg width="38" height="38"><use href="#i-corner"/></svg></span>
+    <span class="co br"><svg width="38" height="38"><use href="#i-corner"/></svg></span>
+    <div class="seal" aria-hidden="true"><svg class="ic"><use href="#i-heart"/></svg></div>
+    <p class="lt-to" id="ltTo">Gửi các bạn nữ,</p>
+    <p class="lt-wish" id="ltWish" aria-live="polite"></p>
+    <p class="lt-from" id="ltFrom" hidden></p>
+    <p class="lt-no" id="ltNo"></p>
+    <div class="lt-actions">
+      <button id="againBtn" class="btn btn-primary" type="button"><svg class="ic" aria-hidden="true"><use href="#i-again"/></svg>Lời chúc khác</button>
+      <button id="closeBtn" class="btn btn-ghost" type="button">Đóng thư</button>
+    </div>
+  </article>
+</section>
+
+<section id="gate" class="gate" role="alertdialog" aria-labelledby="gateTitle" hidden>
+  <div class="gate-card">
+    <div class="gate-ic" aria-hidden="true"><svg class="ic"><use href="#i-globe"/></svg></div>
+    <h2 id="gateTitle">Mở bằng Chrome hoặc Safari nhé</h2>
+    <p>Trang này dùng hình 3D nên không chạy được trong trình duyệt của Zalo, TikTok hay Facebook. Mở bằng trình duyệt chính của điện thoại để xem trọn vẹn món quà.</p>
+    <button id="gateOpen" class="cta" type="button"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg><span>Mở bằng trình duyệt</span></button>
+    <p class="gate-note" id="gateNote" hidden>Nếu trình duyệt chưa tự mở, hãy làm theo hướng dẫn bên dưới.</p>
+    <div class="gate-row">
+      <input id="gateUrl" class="gate-url" readonly aria-label="Liên kết trang">
+      <button id="gateCopy" class="btn btn-ghost" type="button">Sao chép</button>
+    </div>
+    <ol id="gateSteps"></ol>
+  </div>
+</section>
+
+<div id="loader" role="status" aria-live="polite">
+  <div class="ld-in">
+    <svg class="ld-svg" viewBox="-100 -100 200 200" aria-hidden="true">
+      <circle class="ld-ring-bg" r="94"/>
+      <circle id="ldRing" class="ld-ring" r="94" transform="rotate(-90)"/>
+      <g id="ldLeaves"></g>
+      <g id="ldSpin"><g id="ldRose"></g></g>
+    </svg>
+    <p class="ld-num"><span id="ldNum">0</span><small>%</small></p>
+    <p class="ld-msg" id="ldMsg">Đang hái những bông hoa đầu tiên…</p>
+  </div>
+</div>
+<noscript><p style="position:fixed;inset:0;z-index:200;display:grid;place-items:center;margin:0;background:#FFF4F7;color:#45142B;text-align:center;padding:24px">Hãy bật JavaScript để xem trang này nhé.</p></noscript>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+'use strict';
+
+/* ================= Nội dung: sửa ở đây ================= */
+const CFG = {
+  TO: 'các bạn nữ',   // hiện ở đầu lá thư: "Gửi các bạn nữ,"
+  FROM: ''            // để trống nếu không muốn ký tên. Ví dụ: 'Lớp 11/5'
+};
+const WISHES = [
+  'Chúc bạn mỗi sáng thức dậy đều thấy mình đáng yêu hơn hôm qua một chút, và tự tin hơn hôm qua rất nhiều.',
+  '20/10 này, mong mọi áp lực nhường chỗ cho những ly trà sữa thật ngon và những tràng cười thật to.',
+  'Cảm ơn bạn vì đã khiến những nơi bạn đi qua trở nên dịu dàng hơn.',
+  'Chúc bạn luôn được yêu thương đúng cách, được lắng nghe đúng lúc và được ăn món mình thích đúng bữa.',
+  'Mong bạn đừng vội vàng với bản thân. Hoa nào cũng có mùa của nó, và mùa của bạn đang đến.',
+  'Hôm nay bạn không cần giỏi giang hay mạnh mẽ gì cả. Chỉ cần vui là đủ rồi.',
+  'Chúc bạn điểm cao, deadline lùi, tiền về đều và wifi luôn mạnh.',
+  'Chúc bạn gặp thật nhiều người tử tế, và trở thành người tử tế nhất trong mắt chính mình.',
+  'Chúc bạn một ngày không có bài khó, không có việc dồn, chỉ có hoa, bánh và những lời khen.',
+  'Mong những điều bạn đã âm thầm cố gắng sẽ sớm được đền đáp xứng đáng.',
+  'Chúc bạn giữ được nụ cười mà ai nhìn cũng muốn cười theo.',
+  'Bạn tuyệt vời hơn bạn nghĩ nhiều. Nhớ kiểm tra lại điều này mỗi khi thấy chán nhé.',
+  'Chúc bạn ngủ đủ giấc, ăn đủ bữa, và luôn có một góc nhỏ để làm điều mình thích.',
+  'Cảm ơn vì những lần bạn kiên nhẫn giảng lại bài, chia nửa phần ăn vặt và nhắc mọi người đừng bỏ cuộc.',
+  'Chúc bạn đi đâu cũng gặp nắng đẹp, về nhà cũng có người chờ cơm.',
+  'Chúc bạn luôn là phiên bản vui vẻ nhất của chính mình, không cần giống ai cả.',
+  'Có những người không nói nhiều mà vẫn làm người khác thấy ấm. Bạn là một trong số đó.',
+  'Chúc bạn một tuổi trẻ rực rỡ, nhiều bản nhạc hay, nhiều chuyến đi xa và nhiều lần được là chính mình.',
+  'Mong bạn đủ dũng cảm để thử, đủ bình tĩnh để chờ, và đủ dịu dàng để tha thứ cho bản thân.',
+  'Chúc bạn hôm nay được nhận hoa, nhận quà, và nhận thêm một cái ôm thật chặt từ ai đó.',
+  'Cảm ơn bạn vì đã mạnh mẽ những lúc không ai thấy. Hôm nay được phép nghỉ một chút.',
+  'Chúc bạn tóc luôn vào nếp, ảnh luôn lên hình, và tin nhắn luôn được trả lời thật nhanh.',
+  'Chúc bạn có những người bạn thân đến mức nhìn mặt là biết hôm nay bạn cần gì.',
+  'Dù hôm nay thế nào, bạn vẫn xứng đáng được tự hào về chính mình.',
+  'Chúc bạn một mùa thi không buồn ngủ, một mùa lạnh không cảm, và một năm thật nhiều niềm vui.',
+  'Mong bạn nhớ rằng nhẹ nhàng cũng là một cách mạnh mẽ.',
+  'Chúc bạn mỗi ngày đều có một điều nhỏ xíu làm mình mỉm cười: ly nước mát, bài hát hợp tâm trạng hay một vệt nắng xiên qua cửa sổ.',
+  'Chúc bạn thành công theo cách của riêng mình, không cần nhanh, chỉ cần vững.',
+  'Gửi bạn một bó hoa không bao giờ héo. Mỗi lần buồn, hãy mở lá thư này ra.',
+  'Bạn không cần là bông hoa đẹp nhất. Chỉ cần là bông hoa đang nở theo cách của mình.'
+];
+
+/* ================= Tiện ích ================= */
+const $ = s => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const clamp = (x, a = 0, b = 1) => x < a ? a : x > b ? b : x;
+const lerp = (a, b, t) => a + (b - a) * t;
+const eio = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const eoc = t => 1 - Math.pow(1 - t, 3);
+const eob = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+let _s = 20102026;
+const rnd = () => { _s |= 0; _s = _s + 0x6D2B79F5 | 0; let t = Math.imul(_s ^ _s >>> 15, 1 | _s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const rr = (a, b) => a + rnd() * (b - a);
+
+/* ================= Chặn trình duyệt trong app ================= */
+const UA = navigator.userAgent || '';
+const IN_APP = /FBAN|FBAV|FB_IAB|FBIOS|Instagram|Zalo|TikTok|musical_ly|Bytedance|Snapchat|\bLine\/|Messenger|MicroMessenger|KAKAOTALK|LinkedInApp|Pinterest|Twitter/i.test(UA) || location.hash === '#gate';
+
+function showGate() {
+  const loader = $('#loader'); if (loader) loader.remove();
+  const gate = $('#gate'); gate.hidden = false;
+  const isAndroid = /Android/i.test(UA), isIOS = /iPhone|iPad|iPod/i.test(UA);
+  const url = location.href.replace(/#gate$/, '');
+  $('#gateUrl').value = url;
+  const steps = isIOS
+    ? ['Chạm biểu tượng ••• hoặc nút chia sẻ ở góc màn hình.', 'Chọn “Mở bằng Safari” hoặc “Mở trong trình duyệt”.']
+    : ['Chạm biểu tượng ⋮ hoặc ••• ở góc trên bên phải.', 'Chọn “Mở bằng trình duyệt” hoặc “Mở bằng Chrome”.'];
+  const ol = $('#gateSteps');
+  steps.forEach(t => { const li = document.createElement('li'); li.textContent = t; ol.appendChild(li); });
+  $('#gateOpen').addEventListener('click', () => {
+    try {
+      const u = new URL(url);
+      if (isAndroid) {
+        location.href = 'intent://' + u.host + u.pathname + u.search + '#Intent;scheme=' + u.protocol.replace(':', '') + ';package=com.android.chrome;end';
+      } else if (isIOS) {
+        location.href = (u.protocol === 'https:' ? 'googlechromes://' : 'googlechrome://') + u.host + u.pathname + u.search;
+      } else {
+        window.open(url, '_blank');
+      }
+    } catch (e) { /* hiện hướng dẫn thủ công */ }
+    $('#gateNote').hidden = false;
+  });
+  $('#gateCopy').addEventListener('click', async () => {
+    const inp = $('#gateUrl'), btn = $('#gateCopy');
+    let ok = false;
+    try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {}
+    if (!ok) { inp.focus(); inp.select(); try { ok = document.execCommand('copy'); } catch (e) {} }
+    btn.textContent = ok ? 'Đã chép' : 'Chép thủ công';
+    setTimeout(() => { btn.textContent = 'Sao chép'; }, 2200);
+  });
+}
+if (IN_APP) { showGate(); return; }
+
+/* ================= Rose SVG (loading + dự phòng) ================= */
+function roseSVG(g, full) {
+  const defs = [
+    { n: 8, r: 78, w: .62, a: 0 }, { n: 7, r: 64, w: .6, a: 20 }, { n: 6, r: 50, w: .58, a: 10 },
+    { n: 5, r: 37, w: .56, a: 30 }, { n: 4, r: 25, w: .52, a: 5 }, { n: 3, r: 14, w: .5, a: 40 }
+  ];
+  return defs.map(L => {
+    const lg = document.createElementNS(NS, 'g');
+    for (let j = 0; j < L.n; j++) {
+      const w = L.r * L.w, p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', `M0 0C${-w} ${-L.r * .3} ${-w * .95} ${-L.r * .98} 0 ${-L.r}C${w * .95} ${-L.r * .98} ${w} ${-L.r * .3} 0 0Z`);
+      p.setAttribute('transform', `rotate(${L.a + j * 360 / L.n})`);
+      p.setAttribute('class', full ? 'fbpetal' : 'ld-petal');
+      lg.appendChild(p);
+    }
+    g.appendChild(lg);
+    return lg;
+  });
+}
+function leafSVG(g) {
+  const out = [];
+  [[-1, 32], [1, 32]].forEach(([s, a]) => {
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', 'M0 0C-26 -14 -52 -6 -66 22C-34 30 -8 22 0 0Z');
+    p.setAttribute('class', 'ld-leaf');
+    p.setAttribute('data-s', s);
+    g.appendChild(p); out.push(p);
+  });
+  return out;
+}
+
+/* ================= Loader ================= */
+const ldRose = roseSVG($('#ldRose'), false);
+const ldLeaves = leafSVG($('#ldLeaves'));
+const MSGS = [[0, 'Đang hái những bông hoa đầu tiên…'], [.3, 'Đang cắm hoa…'], [.6, 'Đang thắt nơ…'], [.85, 'Đang viết thư…'], [.97, 'Sắp xong rồi!']];
+const MIN_MS = REDUCE ? 600 : 3000;
+const T0 = performance.now();
+let target = 0, shown = 0, S = null, useGL = true;
+const ldNum = $('#ldNum'), ldRing = $('#ldRing'), ldMsg = $('#ldMsg'), ldSpin = $('#ldSpin');
+
+function paintLoader(p, now) {
+  ldNum.textContent = Math.round(p * 100);
+  ldRing.style.strokeDashoffset = (590.6 * (1 - p)).toFixed(1);
+  let m = MSGS[0][1]; for (const [t, s] of MSGS) if (p >= t) m = s;
+  if (ldMsg.textContent !== m) ldMsg.textContent = m;
+  ldLeaves.forEach((lf, i) => {
+    const s = +lf.getAttribute('data-s'), k = eob(clamp(p / .18));
+    lf.setAttribute('transform', `translate(0 62) scale(${s * k} ${k}) rotate(${(1 - k) * 20})`);
+    lf.style.opacity = clamp(p / .1);
+  });
+  ldRose.forEach((lg, i) => {
+    const st = .06 + i * .13, k = clamp((p - st) / .2), e = eob(k);
+    lg.setAttribute('transform', `scale(${(.12 + .88 * e).toFixed(3)}) rotate(${((1 - e) * -40).toFixed(1)})`);
+    lg.style.opacity = clamp(k * 3);
+  });
+  ldSpin.setAttribute('transform', `rotate(${((now - T0) * .006).toFixed(1)})`);
+}
+function ldFrame(now) {
+  const tf = Math.min(1, (now - T0) / MIN_MS);
+  const cap = Math.min(target, tf);
+  shown += (cap - shown) * .1;
+  if (target >= 1 && tf >= 1 && shown > .993) shown = 1;
+  paintLoader(shown, now);
+  if (shown >= 1) { finishLoad(); return; }
+  requestAnimationFrame(ldFrame);
+}
+function finishLoad() {
+  const l = $('#loader');
+  l.classList.add('done');
+  document.body.classList.add('ready');
+  if (S) S.startIntro();
+  setTimeout(() => l.remove(), 1500);
+}
+
+/* ================= Lá thư (DOM) ================= */
+const deck = []; let lastIdx = -1, letterOn = false;
+function drawWish() {
+  if (!deck.length) {
+    for (let i = 0; i < WISHES.length; i++) deck.push(i);
+    for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+    if (deck.length > 1 && deck[deck.length - 1] === lastIdx) [deck[0], deck[deck.length - 1]] = [deck[deck.length - 1], deck[0]];
+  }
+  lastIdx = deck.pop(); return lastIdx;
+}
+function renderWish(idx) {
+  const box = $('#ltWish'); box.textContent = '';
+  WISHES[idx].split(' ').forEach((w, i) => {
+    const s = document.createElement('span'); s.className = 'w'; s.style.setProperty('--i', i); s.textContent = w; box.appendChild(s);
+  });
+  $('#ltNo').textContent = `Lời chúc ${idx + 1} / ${WISHES.length}`;
+}
+function showLetter() {
+  if (letterOn) return; letterOn = true;
+  $('#ltTo').textContent = `Gửi ${CFG.TO},`;
+  const f = $('#ltFrom'); if (CFG.FROM) { f.textContent = CFG.FROM; f.hidden = false; }
+  renderWish(drawWish());
+  const el = $('#letter'); el.hidden = false; void el.offsetWidth; el.classList.add('on');
+  setTimeout(() => $('#againBtn').focus({ preventScroll: true }), 700);
+}
+function hideLetter() {
+  if (!letterOn) return; letterOn = false;
+  const el = $('#letter'); el.classList.remove('on');
+  setTimeout(() => { if (!letterOn) el.hidden = true; }, 520);
+  $('#openBtn').focus({ preventScroll: true });
+}
+
+/* ================= Cảnh 3D ================= */
+async function buildScene(report) {
+  const cv = $('#gl');
+  const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true, powerPreference: 'high-performance' });
+  renderer.setClearColor(0x000000, 0);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(34, 1, .5, 120);
+
+  scene.add(new THREE.HemisphereLight(0xfff0f5, 0xe89ab6, .62));
+  scene.add(new THREE.AmbientLight(0xffffff, .12));
+  const sun = new THREE.DirectionalLight(0xffffff, .72); sun.position.set(3.5, 7, 6); scene.add(sun);
+  const warm = new THREE.PointLight(0xffd6a0, .45, 16); warm.position.set(-4, 3.5, 3.5); scene.add(warm);
+  const under = new THREE.PointLight(0xff9cc0, .4, 12); under.position.set(0, -1.2, 2.5); scene.add(under);
+
+  const turntable = new THREE.Group(); scene.add(turntable);
+  const dummy = new THREE.Object3D();
+
+  /* ---- hình học: cánh hồng ---- */
+  function petalGeo(o) {
+    const g = new THREE.PlaneGeometry(1, 1, 8, 10), p = g.attributes.position, n = p.count, col = new Float32Array(n * 3);
+    const cb = new THREE.Color(o.base), ct = new THREE.Color(o.tip), ce = new THREE.Color(o.edge), c = new THREE.Color();
+    for (let i = 0; i < n; i++) {
+      const u = p.getX(i) * 2, v = p.getY(i) + .5;
+      const k0 = Math.min(1, v / .6), prof = v < .6 ? .2 + .8 * k0 * k0 * (3 - 2 * k0) : Math.sqrt(Math.max(0, 1 - Math.pow((v - .6) / .4, 2.2)));
+      const hw = o.W * .5 * prof;
+      const x = u * hw;
+      const y = v * o.L - u * u * hw * .22 * v;
+      const z = o.cup * u * u * hw + o.bend * v * v * o.L - o.curl * v * v * v * o.L + (o.ruffle || 0) * Math.sin(u * 3.2 + v * 7) * v * v * u * u * o.L;
+      p.setXYZ(i, x, y, z);
+      const t = v * v * (3 - 2 * v);
+      c.copy(cb).lerp(ct, t).lerp(ce, Math.pow(Math.abs(u), 3) * t * .55);
+      col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+    }
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    g.computeVertexNormals();
+    return g;
+  }
+  function leafGeo(L, W, base, tip) {
+    const g = new THREE.PlaneGeometry(1, 1, 6, 12), p = g.attributes.position, n = p.count, col = new Float32Array(n * 3);
+    const cb = new THREE.Color(base), ct = new THREE.Color(tip), c = new THREE.Color();
+    for (let i = 0; i < n; i++) {
+      const u = p.getX(i) * 2, v = p.getY(i) + .5;
+      const hw = W * .5 * Math.pow(Math.max(0, Math.sin(Math.PI * Math.pow(v, .7))), .85) + .01;
+      p.setXYZ(i, u * hw, v * L, Math.abs(u) * hw * .5 - .38 * v * v * L);
+      c.copy(cb).lerp(ct, v * v);
+      if (Math.abs(u) < .09) c.lerp(new THREE.Color('#D9EFC9'), .35);
+      col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+    }
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    g.computeVertexNormals();
+    return g;
+  }
+  const LAYERS = [
+    { n: 3, r: .03, y: 0,    tilt: .18,  L: .50, W: .34, cup: .9, bend: .55, curl: 0,   delay: 0 },
+    { n: 4, r: .07, y: -.02, tilt: .05,  L: .64, W: .46, cup: .8, bend: .45, curl: 0,   delay: .06 },
+    { n: 5, r: .12, y: -.05, tilt: -.12, L: .78, W: .58, cup: .7, bend: .30, curl: .05, delay: .12 },
+    { n: 6, r: .17, y: -.09, tilt: -.38, L: .92, W: .70, cup: .6, bend: .20, curl: .12, delay: .18 },
+    { n: 7, r: .22, y: -.14, tilt: -.55, L: 1.02, W: .82, cup: .5, bend: .08, curl: .25, delay: .26, ruffle: .05 },
+    { n: 8, r: .28, y: -.20, tilt: -.82, L: 1.08, W: .90, cup: .4, bend: -.05, curl: .40, delay: .34, ruffle: .07 }
+  ];
+  const green = new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: .6 });
+  const stemMat = new THREE.MeshStandardMaterial({ color: '#5E9A6C', roughness: .7 });
+
+  function makeRose(pal, layers, bias) {
+    const g = new THREE.Group(), petals = [];
+    const mat = new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: .55, metalness: 0 });
+    LAYERS.slice(0, layers).forEach((d, i) => {
+      const geo = petalGeo({ ...d, base: pal.base, tip: pal.tip, edge: pal.edge });
+      for (let j = 0; j < d.n; j++) {
+        const th = j * (Math.PI * 2 / d.n) + i * .55 + rr(-.12, .12);
+        const ring = new THREE.Group(); ring.position.set(Math.cos(th) * d.r, d.y, Math.sin(th) * d.r); ring.rotation.y = -th - Math.PI / 2;
+        const piv = new THREE.Group(), m = new THREE.Mesh(geo, mat); m.scale.set(rr(.94, 1.08), rr(.95, 1.06), 1);
+        piv.add(m); ring.add(piv); g.add(ring);
+        petals.push({ piv, closed: .3 + i * .02 + rr(0, .05), open: d.tilt + (i >= 2 ? bias : 0) + rr(-.06, .06), delay: d.delay + j * .012 });
+      }
+    });
+    const rec = new THREE.Mesh(new THREE.SphereGeometry(.14, 14, 10), stemMat); rec.scale.y = .8; rec.position.y = -.1; g.add(rec);
+    const sg = petalGeo({ L: .55, W: .16, cup: .3, bend: 0, curl: .1, base: '#4E8A5E', tip: '#8FC08A', edge: '#9ED09A' });
+    for (let k = 0; k < 5; k++) {
+      const th = k * Math.PI * 2 / 5, ring = new THREE.Group(), piv = new THREE.Group(); piv.rotation.x = -2.0;
+      ring.position.set(Math.cos(th) * .08, -.07, Math.sin(th) * .08); ring.rotation.y = -th - Math.PI / 2;
+      piv.add(new THREE.Mesh(sg, green)); ring.add(piv); g.add(ring);
+    }
+    return { group: g, petals };
+  }
+  function bloomRose(r, t) {
+    for (const p of r.petals) { const k = eoc(clamp((t - p.delay * 2.4) / 1.6)); p.piv.rotation.x = lerp(p.closed, p.open, k); }
+  }
+  await sleep(16);
+
+  /* ---- bó hoa ---- */
+  const bouquet = new THREE.Group(); turntable.add(bouquet);
+  const wrapMat = new THREE.MeshStandardMaterial({ color: '#EFA3BD', roughness: .8, side: THREE.DoubleSide });
+  const coneGeo = new THREE.ConeGeometry(1, 1.5, 56, 6, true);
+  { const p = coneGeo.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), y = p.getY(i), z = p.getZ(i), a = Math.atan2(z, x), hf = (y + .75) / 1.5;
+      const k = 1 + .035 * Math.sin(a * 9) * hf; p.setX(i, x * k); p.setZ(i, z * k);
+    }
+    coneGeo.computeVertexNormals(); }
+  const cone = new THREE.Mesh(coneGeo, wrapMat); cone.rotation.x = Math.PI; cone.position.y = 1.3; bouquet.add(cone);
+  const gold = new THREE.MeshStandardMaterial({ color: '#D8B06A', metalness: .55, roughness: .35, emissive: '#5A3F12', emissiveIntensity: .35 });
+  const collar = new THREE.Mesh(new THREE.CylinderGeometry(1.03, .95, .16, 56, 1, true), new THREE.MeshStandardMaterial({ color: '#FFE2EB', roughness: .7, side: THREE.DoubleSide }));
+  collar.position.y = 2.05; bouquet.add(collar);
+  const collarRim = new THREE.Mesh(new THREE.TorusGeometry(1.03, .014, 8, 80), gold); collarRim.rotation.x = Math.PI / 2; collarRim.position.y = 2.13; bouquet.add(collarRim);
+  // nơ
+  const satin = new THREE.MeshStandardMaterial({ color: '#E0558A', roughness: .35, metalness: .05, side: THREE.DoubleSide });
+  const band = new THREE.Mesh(new THREE.TorusGeometry(.447, .04, 8, 56), satin); band.rotation.x = Math.PI / 2; band.position.y = 1.2; bouquet.add(band);
+  const bow = new THREE.Group(); bow.position.set(0, 1.2, .46); bouquet.add(bow);
+  [-1, 1].forEach(s => {
+    const loop = new THREE.Mesh(new THREE.TorusGeometry(.15, .04, 8, 22), satin); loop.scale.y = .78; loop.position.x = s * .17; loop.rotation.z = s * .3; bow.add(loop);
+    const tail = new THREE.Mesh(new THREE.PlaneGeometry(.1, .42), satin); tail.position.set(s * .07, -.26, .01); tail.rotation.z = s * .22; bow.add(tail);
+  });
+  const knot = new THREE.Mesh(new THREE.SphereGeometry(.085, 14, 10), satin); bow.add(knot);
+  report(.18); await sleep(16);
+
+  // hồng
+  const PAL = {
+    hero:  { base: '#B01650', tip: '#F26A98', edge: '#FFC2D4' },
+    deep:  { base: '#8E0F3E', tip: '#D63C74', edge: '#F58FB0' },
+    blush: { base: '#E58FAE', tip: '#FFC7D8', edge: '#FFF0F4' },
+    mid:   { base: '#C2306B', tip: '#F58AB1', edge: '#FFD0DE' }
+  };
+  const SPEC = [
+    { pal: PAL.hero,  pos: [0, 2.85, .05],   rot: [0, 0, 0],       s: .62, layers: 6, bias: 0,   start: .9 },
+    { pal: PAL.deep,  pos: [-.88, 2.45, .22], rot: [.18, 0, .42],  s: .5,  layers: 5, bias: .2,  start: 1.3 },
+    { pal: PAL.blush, pos: [.9, 2.4, .28],   rot: [.2, 0, -.4],    s: .48, layers: 5, bias: .25, start: 1.5 },
+    { pal: PAL.mid,   pos: [.1, 2.55, -.62], rot: [-.5, 0, .05],   s: .42, layers: 5, bias: .15, start: 1.7 }
+  ];
+  const roses = [];
+  for (const sp of SPEC) {
+    const r = makeRose(sp.pal, sp.layers, sp.bias);
+    const holder = new THREE.Group(); holder.position.set(...sp.pos); holder.rotation.set(...sp.rot); holder.scale.setScalar(sp.s); holder.add(r.group); bouquet.add(holder);
+    const hp = new THREE.Vector3(...sp.pos);
+    const curve = new THREE.CatmullRomCurve3([hp.clone(), new THREE.Vector3(hp.x * .6, (hp.y + 1) / 2, hp.z * .6), new THREE.Vector3(0, 1, 0)]);
+    bouquet.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 14, .035, 6), stemMat));
+    roses.push({ ...r, holder, start: sp.start, baseRot: sp.rot.slice(), ph: rr(0, 6) });
+    report(.18 + .1 * roses.length); await sleep(16);
+  }
+
+  // lá
+  const leafSets = [
+    leafGeo(1.0, .34, '#3F7A52', '#9CCB8E'), leafGeo(1.25, .42, '#3A7350', '#8EC184'), leafGeo(.85, .3, '#4A8A5C', '#A8D49A')
+  ];
+  function addLeaf(th, r, y, tilt, scale, gi) {
+    const ring = new THREE.Group(), piv = new THREE.Group();
+    ring.position.set(Math.cos(th) * r, y, Math.sin(th) * r); ring.rotation.y = -th - Math.PI / 2; piv.rotation.x = tilt; piv.rotation.z = rr(-.12, .12);
+    const m = new THREE.Mesh(leafSets[gi], green); m.scale.setScalar(scale); piv.add(m); ring.add(piv); bouquet.add(ring);
+  }
+  for (let i = 0; i < 12; i++) addLeaf(i / 12 * Math.PI * 2 + rr(-.15, .15), rr(.7, .95), rr(2.0, 2.15), -rr(.75, 1.25), rr(.9, 1.35), i % 3);
+  for (let i = 0; i < 5; i++) addLeaf(i / 5 * Math.PI * 2 + rr(0, 1), rr(.35, .55), 2.35, -rr(.4, .7), rr(.65, .9), 2);
+  report(.5); await sleep(16);
+
+  // cúc nhỏ
+  const petalPlane = new THREE.CircleGeometry(.5, 12); petalPlane.translate(0, .5, 0);
+  function makeDaisies(list) {
+    const grp = new THREE.Group(), PET = 9, total = list.length * PET;
+    const pm = new THREE.InstancedMesh(petalPlane, new THREE.MeshStandardMaterial({ color: '#ffffff', side: THREE.DoubleSide, roughness: .75 }), total);
+    const cm = new THREE.InstancedMesh(new THREE.SphereGeometry(.5, 10, 8), new THREE.MeshStandardMaterial({ color: '#F6C453', roughness: .6 }), list.length);
+    const up = new THREE.Vector3(0, 0, 1), zq = new THREE.Quaternion(), tq = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), .3), col = new THREE.Color();
+    const tints = ['#FFFFFF', '#FFE3EC', '#FFD0E0', '#FFF6F9'];
+    list.forEach((f, fi) => {
+      const fq = new THREE.Quaternion().setFromUnitVectors(up, f.n.clone().normalize());
+      col.set(tints[fi % tints.length]);
+      for (let k = 0; k < PET; k++) {
+        zq.setFromAxisAngle(up, k / PET * Math.PI * 2);
+        dummy.position.copy(f.p); dummy.quaternion.copy(fq).multiply(zq).multiply(tq); dummy.scale.set(f.r * .5, f.r, 1); dummy.updateMatrix();
+        pm.setMatrixAt(fi * PET + k, dummy.matrix); pm.setColorAt(fi * PET + k, col);
+      }
+      dummy.position.copy(f.p); dummy.quaternion.copy(fq); dummy.scale.set(f.r * .5, f.r * .5, f.r * .28); dummy.updateMatrix(); cm.setMatrixAt(fi, dummy.matrix);
+    });
+    grp.add(pm, cm); return grp;
+  }
+  const fillers = [];
+  for (let i = 0; i < 7; i++) {
+    const th = i / 7 * Math.PI * 2 + .4, r = rr(.62, 1.0), y = rr(2.2, 2.55);
+    const p = new THREE.Vector3(Math.cos(th) * r, y, Math.sin(th) * r), n = new THREE.Vector3(Math.cos(th) * .7, 1, Math.sin(th) * .7);
+    fillers.push({ p, n, r: rr(.11, .15) });
+    const curve = new THREE.CatmullRomCurve3([p.clone(), new THREE.Vector3(p.x * .7, (p.y + 1.1) / 2, p.z * .7), new THREE.Vector3(0, 1.1, 0)]);
+    bouquet.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 10, .012, 5), stemMat));
+  }
+  bouquet.add(makeDaisies(fillers));
+
+  /* ---- bệ + cỏ + hoa dại ---- */
+  const porcelain = new THREE.MeshStandardMaterial({ color: '#FBD2E0', roughness: .45 });
+  const pedTop = new THREE.Mesh(new THREE.CylinderGeometry(1.45, 1.5, .18, 64), porcelain); turntable.add(pedTop);
+  const pedStep = new THREE.Mesh(new THREE.CylinderGeometry(1.72, 1.8, .14, 64), new THREE.MeshStandardMaterial({ color: '#F7B9CE', roughness: .45 })); pedStep.position.y = -.16; turntable.add(pedStep);
+  [[1.47, .035, .09], [1.76, .028, -.09], [1.15, .01, .092]].forEach(([r, t, y]) => {
+    const m = new THREE.Mesh(new THREE.TorusGeometry(r, t, 8, 110), gold); m.rotation.x = Math.PI / 2; m.position.y = y; turntable.add(m);
+  });
+  function radialTex(inner, outer) {
+    const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d');
+    const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, inner); g.addColorStop(1, outer); x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+    return new THREE.CanvasTexture(c);
+  }
+  const shadow = new THREE.Mesh(new THREE.CircleGeometry(1.05, 48), new THREE.MeshBasicMaterial({ map: radialTex('rgba(142,26,72,.45)', 'rgba(142,26,72,0)'), transparent: true, depthWrite: false }));
+  shadow.rotation.x = -Math.PI / 2; shadow.position.y = .1; turntable.add(shadow);
+
+  // cỏ (shader, instanced)
+  const GN = 520;
+  const gg = new THREE.InstancedBufferGeometry();
+  { const pos = [], idx = [];
+    for (let k = 0; k <= 4; k++) pos.push(-.5, k / 4, 0, .5, k / 4, 0);
+    for (let k = 0; k < 4; k++) { const a = 2 * k; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+    gg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gg.setIndex(idx);
+    const off = new Float32Array(GN * 3), par = new Float32Array(GN * 4), tint = new Float32Array(GN);
+    for (let i = 0; i < GN; i++) {
+      const a = rnd() * Math.PI * 2, r = .25 + Math.sqrt(rnd()) * 1.2;
+      off[i * 3] = Math.cos(a) * r; off[i * 3 + 1] = .09; off[i * 3 + 2] = Math.sin(a) * r;
+      par[i * 4] = rr(.14, .36) * (.8 + r * .2); par[i * 4 + 1] = rr(.035, .06); par[i * 4 + 2] = rnd() * Math.PI * 2; par[i * 4 + 3] = rnd() * 6.28;
+      tint[i] = rnd();
+    }
+    gg.setAttribute('aOffset', new THREE.InstancedBufferAttribute(off, 3));
+    gg.setAttribute('aParams', new THREE.InstancedBufferAttribute(par, 4));
+    gg.setAttribute('aTint', new THREE.InstancedBufferAttribute(tint, 1)); }
+  const grassMat = new THREE.ShaderMaterial({
+    side: THREE.DoubleSide,
+    uniforms: { uTime: { value: 0 }, uGrow: { value: 0 }, uBase: { value: new THREE.Color('#4B8A5B') }, uTip: { value: new THREE.Color('#BCE3A8') } },
+    vertexShader: `attribute vec3 aOffset; attribute vec4 aParams; attribute float aTint;
+      uniform float uTime; uniform float uGrow; varying float vH; varying float vT;
+      void main(){
+        float h=position.y; vH=h; vT=aTint;
+        float ht=aParams.x*uGrow; float bend=h*h;
+        vec3 p=vec3(position.x*aParams.y*(1.0-h*.85), h*ht, bend*ht*.32);
+        p.x+=(sin(uTime*1.7+aParams.w+aOffset.x*1.7)*.12+sin(uTime*.9+aOffset.z*2.0)*.06)*ht*bend*2.0;
+        float c=cos(aParams.z), s=sin(aParams.z);
+        vec3 q=vec3(c*p.x+s*p.z, p.y, -s*p.x+c*p.z)+aOffset;
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(q,1.0);
+      }`,
+    fragmentShader: `uniform vec3 uBase; uniform vec3 uTip; varying float vH; varying float vT;
+      void main(){ vec3 col=mix(uBase,uTip,vH); col*=.86+.28*vT; gl_FragColor=vec4(col,1.0); }`
+  });
+  const grass = new THREE.Mesh(gg, grassMat); grass.frustumCulled = false; turntable.add(grass);
+  const lawn = [];
+  for (let i = 0; i < 20; i++) {
+    const a = rnd() * Math.PI * 2, r = .55 + Math.sqrt(rnd()) * .85;
+    lawn.push({ p: new THREE.Vector3(Math.cos(a) * r, .2 + rnd() * .08, Math.sin(a) * r), n: new THREE.Vector3(rr(-.25, .25), 1, rr(-.25, .25)), r: rr(.09, .14) });
+  }
+  turntable.add(makeDaisies(lawn));
+  report(.7); await sleep(16);
+
+  /* ---- sao lấp lánh, tim 3D, cánh hoa rơi ---- */
+  function starTex() {
+    const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d');
+    x.translate(32, 32); x.fillStyle = '#fff'; x.beginPath();
+    for (let i = 0; i < 8; i++) { const r = i % 2 ? 5 : 30, a = i * Math.PI / 4 - Math.PI / 2; x.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+    x.closePath(); x.fill();
+    const g = x.createRadialGradient(0, 0, 0, 0, 0, 14); g.addColorStop(0, 'rgba(255,255,255,.9)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.beginPath(); x.arc(0, 0, 14, 0, 7); x.fill();
+    return new THREE.CanvasTexture(c);
+  }
+  const SPK = 36, spkGeo = new THREE.BufferGeometry(), spkPos = new Float32Array(SPK * 3);
+  for (let i = 0; i < SPK; i++) { const a = rnd() * 6.28, r = rr(1.1, 3), y = rr(.4, 4); spkPos[i * 3] = Math.cos(a) * r; spkPos[i * 3 + 1] = y; spkPos[i * 3 + 2] = Math.sin(a) * r; }
+  spkGeo.setAttribute('position', new THREE.BufferAttribute(spkPos, 3));
+  const spkMat = new THREE.PointsMaterial({ size: .3, map: starTex(), color: '#E3B96A', transparent: true, depthWrite: false, opacity: 0 });
+  const sparkles = new THREE.Points(spkGeo, spkMat); turntable.add(sparkles);
+
+  function heartGeo(depth) {
+    const sh = new THREE.Shape(), N = 64;
+    for (let i = 0; i <= N; i++) {
+      const t = i / N * Math.PI * 2, x = 16 * Math.pow(Math.sin(t), 3) / 29, y = (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) / 29;
+      i ? sh.lineTo(x, y) : sh.moveTo(x, y);
+    }
+    const g = new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: true, bevelThickness: .07, bevelSize: .05, bevelSegments: 2, curveSegments: 4 });
+    g.center(); return g;
+  }
+  const heartG = heartGeo(.2), heartMat = new THREE.MeshStandardMaterial({ color: '#F0568B', roughness: .3, metalness: .1, emissive: '#7A1238', emissiveIntensity: .25 });
+  const hearts = [];
+  for (let i = 0; i < 9; i++) {
+    const m = new THREE.Mesh(heartG, heartMat); scene.add(m);
+    hearts.push({ m, a: rr(0, 6.28), r: rr(1.5, 2.9), y: rr(0, 4.2), v: rr(.22, .42), s: rr(.16, .3), ph: rr(0, 6), sp: rr(.8, 1.6) });
+  }
+
+  const petalSmall = petalGeo({ L: 1, W: .7, cup: .5, bend: .3, curl: .15, base: '#FF9DBB', tip: '#FFD6E3', edge: '#FFFFFF' });
+  const petalMat = new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: .55 });
+  const FN = REDUCE ? 14 : 46, falls = [];
+  const fallMesh = new THREE.InstancedMesh(petalSmall, petalMat, FN); scene.add(fallMesh);
+  const pcols = ['#FFFFFF', '#FFD0E0', '#FFB3CC', '#FFE6EE', '#F59ABB'], cc = new THREE.Color();
+  for (let i = 0; i < FN; i++) {
+    falls.push({ x: rr(-4, 4), y: rr(-4, 8), z: rr(-3, 4), vy: rr(.28, .6), amp: rr(.3, .8), fq: rr(.6, 1.3), ph: rr(0, 6), t: rr(0, 9), rx: rr(0, 6), ry: rr(0, 6), rz: rr(0, 6), sx: rr(.5, 1.6), sy: rr(.5, 1.6), sz: rr(.3, 1), s: rr(.14, .26) });
+    fallMesh.setColorAt(i, cc.set(pcols[i % pcols.length]));
+  }
+  const BN = 90, bursts = [];
+  const burstMesh = new THREE.InstancedMesh(petalSmall, petalMat, BN); scene.add(burstMesh);
+  for (let i = 0; i < BN; i++) { bursts.push({ on: false, life: 0, max: 1, p: new THREE.Vector3(), v: new THREE.Vector3(), rot: new THREE.Vector3(), sp: new THREE.Vector3(), s: .2 }); burstMesh.setColorAt(i, cc.set(pcols[i % pcols.length])); dummy.scale.setScalar(0); dummy.updateMatrix(); burstMesh.setMatrixAt(i, dummy.matrix); }
+  function spawnBurst(x, y, z, n) {
+    let c = 0;
+    for (const b of bursts) { if (b.on) continue; if (c++ >= n) break;
+      b.on = true; b.life = 0; b.max = rr(2.2, 3.4); b.p.set(x + rr(-.4, .4), y + rr(-.2, .2), z + rr(-.2, .3));
+      b.v.set(rr(-2.4, 2.4), rr(2.2, 5.4), rr(-1, 2.4)); b.rot.set(rr(0, 6), rr(0, 6), rr(0, 6)); b.sp.set(rr(-5, 5), rr(-5, 5), rr(-4, 4)); b.s = rr(.16, .3); }
+  }
+  report(.82); await sleep(16);
+
+  /* ---- phong thư 3D ---- */
+  const env = new THREE.Group(); scene.add(env);
+  const pinkBack = new THREE.MeshStandardMaterial({ color: '#F28DAF', roughness: .7, side: THREE.DoubleSide });
+  env.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 1.3), pinkBack));
+  function letterTex() {
+    const c = document.createElement('canvas'); c.width = 256; c.height = 170; const x = c.getContext('2d');
+    x.fillStyle = '#FFFAF6'; x.fillRect(0, 0, 256, 170);
+    x.strokeStyle = '#C79F5B'; x.lineWidth = 3; x.strokeRect(8, 8, 240, 154);
+    x.strokeStyle = 'rgba(199,44,102,.22)'; x.lineWidth = 2;
+    for (let i = 0; i < 4; i++) { x.beginPath(); x.moveTo(36, 56 + i * 18); x.lineTo(i === 3 ? 140 : 220, 56 + i * 18); x.stroke(); }
+    x.fillStyle = '#D9407A'; x.beginPath(); x.moveTo(128, 40); x.bezierCurveTo(112, 22, 98, 36, 128, 52); x.bezierCurveTo(158, 36, 144, 22, 128, 40); x.fill();
+    return new THREE.CanvasTexture(c);
+  }
+  const letter = new THREE.Mesh(new THREE.PlaneGeometry(1.82, 1.2), new THREE.MeshStandardMaterial({ map: letterTex(), roughness: .9, side: THREE.DoubleSide }));
+  letter.position.set(0, -.05, .012); env.add(letter);
+  const pk = new THREE.Shape(); pk.moveTo(-1, .65); pk.lineTo(0, -.1); pk.lineTo(1, .65); pk.lineTo(1, -.65); pk.lineTo(-1, -.65); pk.closePath();
+  const pocket = new THREE.Mesh(new THREE.ShapeGeometry(pk), new THREE.MeshStandardMaterial({ color: '#F9BCD0', roughness: .7, side: THREE.DoubleSide })); pocket.position.z = .02; env.add(pocket);
+  const goldLine = new THREE.LineBasicMaterial({ color: '#C79F5B' });
+  const pkLine = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([[-1, .65], [0, -.1], [1, .65], [1, -.65], [-1, -.65]].map(a => new THREE.Vector3(a[0], a[1], .022))), goldLine); env.add(pkLine);
+  const flapPivot = new THREE.Group(); flapPivot.position.set(0, .65, .03); env.add(flapPivot);
+  const fs = new THREE.Shape(); fs.moveTo(-1, 0); fs.lineTo(1, 0); fs.lineTo(0, -.78); fs.closePath();
+  const flapGeo = new THREE.ShapeGeometry(fs);
+  flapPivot.add(new THREE.Mesh(flapGeo, new THREE.MeshStandardMaterial({ color: '#FBC4D5', roughness: .65, side: THREE.FrontSide })));
+  flapPivot.add(new THREE.Mesh(flapGeo, new THREE.MeshStandardMaterial({ color: '#F27CA5', roughness: .7, side: THREE.BackSide })));
+  flapPivot.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([[-1, 0], [1, 0], [0, -.78]].map(a => new THREE.Vector3(a[0], a[1], .003))), goldLine));
+  const seal = new THREE.Group(); seal.position.set(0, -.66, .03); flapPivot.add(seal);
+  const wax = new THREE.Mesh(new THREE.CylinderGeometry(.17, .19, .05, 32), new THREE.MeshStandardMaterial({ color: '#C72C66', roughness: .45, emissive: '#5a0f2c', emissiveIntensity: .3 })); wax.rotation.x = Math.PI / 2; seal.add(wax);
+  const sh = new THREE.Mesh(heartG, gold); sh.scale.setScalar(.2); sh.position.z = .04; seal.add(sh);
+  const HOME = { x: 0, y: .5, z: 2.6 };
+  const E = { t: 0, target: 0, state: 'closed', shown: false };
+
+  /* ---- điều khiển ---- */
+  const V = { yaw: -.35, yawVel: 0, pitch: .2, zoom: 1, zoomT: 1, idle: 0, dragging: false };
+  const ptrs = new Map(); let moved = 0, lx = 0, ly = 0, lt = 0, pinch0 = 0, zoom0 = 1;
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  function hitEnv(e) {
+    const r = cv.getBoundingClientRect();
+    ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera); return ray.intersectObject(env, true).length > 0;
+  }
+  const pd = () => { const a = [...ptrs.values()]; return Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); };
+  cv.addEventListener('pointerdown', e => {
+    cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); V.idle = 0;
+    if (ptrs.size === 1) { lx = e.clientX; ly = e.clientY; lt = performance.now(); moved = 0; V.dragging = true; V.yawVel = 0; }
+    else if (ptrs.size === 2) { pinch0 = pd(); zoom0 = V.zoomT; }
+  });
+  cv.addEventListener('pointermove', e => {
+    if (!ptrs.has(e.pointerId)) { if (E.state === 'closed') cv.style.cursor = hitEnv(e) ? 'pointer' : 'grab'; return; }
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); V.idle = 0;
+    if (ptrs.size === 2) { V.zoomT = clamp(zoom0 * pd() / pinch0, .8, 1.5); moved = 99; return; }
+    const dx = e.clientX - lx, dy = e.clientY - ly, now = performance.now(), dt = Math.max(8, now - lt) / 1000;
+    moved += Math.abs(dx) + Math.abs(dy); V.yaw += dx * .0105; V.pitch = clamp(V.pitch - dy * .004, .02, .55);
+    V.yawVel = lerp(V.yawVel, dx * .0105 / dt, .45); lx = e.clientX; ly = e.clientY; lt = now;
+  });
+  const up = e => {
+    if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId);
+    if (!ptrs.size) { V.dragging = false; if (performance.now() - lt > 90) V.yawVel = 0; if (moved < 8 && e.type === 'pointerup' && E.state === 'closed' && hitEnv(e)) api.open(); }
+  };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  cv.addEventListener('wheel', e => { e.preventDefault(); V.zoomT = clamp(V.zoomT * (e.deltaY < 0 ? 1.07 : .93), .8, 1.5); }, { passive: false });
+
+  /* ---- kích thước ---- */
+  const VIEW = { H: 8, ty: 1.55, dist: 13, halfW: 5, top: 7, bottom: -5 };
+  function resize() {
+    const w = innerWidth, h = innerHeight, asp = w / h;
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75)); renderer.setSize(w, h, false);
+    camera.aspect = asp; camera.fov = 34;
+    VIEW.H = Math.max(asp > 1 ? 7.2 : 7.6, 3.9 / asp);
+    VIEW.dist = VIEW.H / (2 * Math.tan(THREE.MathUtils.degToRad(17)));
+    VIEW.halfW = VIEW.H * asp / 2 + 1.2; VIEW.top = VIEW.ty + VIEW.H / 2 + 1; VIEW.bottom = VIEW.ty - VIEW.H / 2 - 1;
+    camera.updateProjectionMatrix();
+  }
+  resize(); addEventListener('resize', resize);
+
+  /* ---- vòng lặp ---- */
+  let time = 0, last = performance.now(), introStart = null;
+  const api = {
+    startIntro() { introStart = REDUCE ? time - 10 : time; },
+    open() { if (E.state !== 'closed') return; E.state = 'opening'; E.target = 1; E.shown = false; },
+    close() { E.target = 0; E.state = 'closing'; },
+    burst() { spawnBurst(0, 2.8, 1, 36); },
+    envState: () => E.state
+  };
+  function updateEnvelope(dt, tI) {
+    const speed = E.target > E.t ? 1 / 2.1 : 1 / 1.2;
+    E.t = E.target > E.t ? Math.min(E.target, E.t + dt * speed) : Math.max(E.target, E.t - dt * speed);
+    if (E.state === 'opening' && E.t >= .82 && !E.shown) { E.shown = true; showLetter(); spawnBurst(0, 1.7, 3.2, 60); }
+    if (E.state === 'opening' && E.t >= .999) E.state = 'open';
+    if (E.state === 'closing' && E.t <= .001) E.state = 'closed';
+    const t = E.t, a = eio(clamp(t / .3)), ei = eob(clamp((tI - 1.9) / 1.2));
+    const bob = Math.sin(time * 1.4) * .06 * (1 - a);
+    env.position.set(lerp(HOME.x, 0, a), lerp(HOME.y + bob + (1 - ei) * 3.2, 1.75, a), lerp(HOME.z, 3.5, a));
+    env.rotation.set(lerp(-.2, 0, a), lerp(Math.sin(time * .9) * .09, 0, a), lerp(Math.sin(time * 1.1) * .035, 0, a));
+    env.scale.setScalar(Math.max(.001, lerp(.72, 1.3, a) * ei));
+    flapPivot.rotation.x = eio(clamp((t - .25) / .3)) * Math.PI * .93; seal.visible = flapPivot.rotation.x < .6;
+    const rise = eio(clamp((t - .52) / .32));
+    letter.position.y = lerp(-.05, .8, rise); letter.position.z = lerp(.012, .06, clamp((t - .6) / .08));
+  }
+  function update(dt) {
+    time += dt; V.idle += dt;
+    const tI = introStart == null ? 0 : time - introStart;
+    grassMat.uniforms.uTime.value = time; grassMat.uniforms.uGrow.value = eoc(clamp(tI / 1.8));
+
+    // xoay
+    if (!V.dragging) {
+      const auto = (V.idle > 2.2 && E.state === 'closed' && !letterOn) ? (REDUCE ? 0 : .22) : 0;
+      V.yawVel = lerp(V.yawVel, auto, 1 - Math.exp(-1.6 * dt)); V.yaw += V.yawVel * dt;
+    }
+    V.zoom = lerp(V.zoom, V.zoomT, 1 - Math.exp(-8 * dt));
+    turntable.rotation.y = V.yaw;
+    const d = VIEW.dist / V.zoom;
+    camera.position.set(0, VIEW.ty + d * Math.sin(V.pitch), d * Math.cos(V.pitch)); camera.lookAt(0, VIEW.ty, 0);
+
+    // bó hoa
+    const bi = eoc(clamp((tI - .1) / 1.6)), bob = Math.sin(time * 1.1) * (REDUCE ? .01 : .07);
+    bouquet.position.y = (1 - bi) * 2.4 + bob; bouquet.scale.setScalar(lerp(.7, 1, bi)); bouquet.rotation.z = Math.sin(time * .8) * .012;
+    shadow.scale.setScalar(1 - bob * .6 - (1 - bi) * .4); shadow.material.opacity = bi * .9;
+    for (const r of roses) { bloomRose(r, tI - r.start); r.holder.rotation.x = r.baseRot[0] + Math.sin(time * .9 + r.ph) * .02; r.holder.rotation.z = r.baseRot[2] + Math.cos(time * .8 + r.ph) * .02; }
+
+    spkMat.opacity = clamp((tI - 1.5) / 1.5) * (.55 + .4 * Math.sin(time * 2.2)); spkMat.size = .26 + .08 * Math.sin(time * 1.7); sparkles.rotation.y = time * .05;
+
+    // tim
+    for (const h of hearts) {
+      h.y += h.v * dt * (REDUCE ? .4 : 1); if (h.y > 4.4) { h.y = -.2; h.a = rr(0, 6.28); }
+      const k = clamp(h.y / .8) * clamp((4.4 - h.y) / 1.2), x = Math.cos(h.a) * h.r + Math.sin(time * h.sp + h.ph) * .25, z = Math.sin(h.a) * h.r;
+      h.m.position.set(x, h.y, z); h.m.rotation.set(Math.sin(time * h.sp) * .25, time * h.sp + h.ph, Math.sin(time + h.ph) * .2);
+      h.m.scale.setScalar(h.s * k * clamp((tI - 1.2) / 1));
+    }
+
+    // cánh hoa rơi
+    const sp = REDUCE ? .35 : 1, fadeIn = clamp((tI - .6) / 1.2);
+    for (let i = 0; i < FN; i++) {
+      const f = falls[i]; f.t += dt * sp; f.y -= f.vy * dt * sp; if (f.y < VIEW.bottom) { f.y = VIEW.top; f.x = rr(-VIEW.halfW, VIEW.halfW); }
+      dummy.position.set(f.x + Math.sin(f.t * f.fq + f.ph) * f.amp, f.y, f.z + Math.cos(f.t * f.fq * .8 + f.ph) * f.amp * .6);
+      dummy.rotation.set(f.rx + f.t * f.sx, f.ry + f.t * f.sy, f.rz + f.t * f.sz); dummy.scale.setScalar(f.s * fadeIn); dummy.updateMatrix(); fallMesh.setMatrixAt(i, dummy.matrix);
+    }
+    fallMesh.instanceMatrix.needsUpdate = true;
+    for (let i = 0; i < BN; i++) {
+      const b = bursts[i]; if (!b.on) continue;
+      b.life += dt; if (b.life >= b.max) { b.on = false; dummy.scale.setScalar(0); dummy.updateMatrix(); burstMesh.setMatrixAt(i, dummy.matrix); continue; }
+      b.v.y -= 3.6 * dt; b.v.multiplyScalar(1 - .55 * dt); b.p.addScaledVector(b.v, dt);
+      const k = Math.min(1, b.life / .25) * Math.min(1, (b.max - b.life) / .6);
+      dummy.position.copy(b.p); dummy.rotation.set(b.rot.x + b.life * b.sp.x, b.rot.y + b.life * b.sp.y, b.rot.z + b.life * b.sp.z); dummy.scale.setScalar(b.s * k); dummy.updateMatrix(); burstMesh.setMatrixAt(i, dummy.matrix);
+    }
+    burstMesh.instanceMatrix.needsUpdate = true;
+    updateEnvelope(dt, tI);
+  }
+  function loop(now) {
+    requestAnimationFrame(loop);
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    update(dt); renderer.render(scene, camera);
+  }
+  update(0); renderer.render(scene, camera);
+  requestAnimationFrame(t => { last = t; loop(t); });
+  report(1);
+  return api;
+}
+
+/* ================= Khởi động ================= */
+function noGL() {
+  useGL = false; S = null;
+  $('#gl').hidden = true;
+  const fb = $('#fallback'); fb.hidden = false; roseSVG($('#fbRose'), true);
+}
+$('#openBtn').addEventListener('click', () => {
+  if (S && useGL) S.open(); else showLetter();
+});
+$('#againBtn').addEventListener('click', () => {
+  renderWish(drawWish()); if (S) S.burst();
+});
+$('#closeBtn').addEventListener('click', () => { hideLetter(); if (S) S.close(); });
+$('#burstBtn').addEventListener('click', () => { if (S) S.burst(); });
+addEventListener('keydown', e => { if (e.key === 'Escape' && letterOn) { hideLetter(); if (S) S.close(); } });
+
+requestAnimationFrame(ldFrame);
+(async () => {
+  await Promise.race([document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(), sleep(2200)]);
+  target = .1;
+  if (typeof THREE === 'undefined') { noGL(); target = 1; return; }
+  try { S = await buildScene(p => { target = Math.max(target, .1 + .88 * p); }); }
+  catch (err) { console.error(err); noGL(); }
+  target = 1;
+})();
+})();
+</script>
+
+</body>
+</html>
